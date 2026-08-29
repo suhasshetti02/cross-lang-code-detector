@@ -40,8 +40,7 @@ class CompilerPipeline:
         """
         Compiles source file to LLVM IR.
         
-        If the target compiler exists on the system, failures raise LLVMCompilationError.
-        If the compiler is missing (clean environment fallback), generates a robust mock IR fallback.
+        Raises LLVMCompilationError if compiler is missing or if compilation fails.
         """
         lang = self.detect_language(source_path.name)
         if not lang:
@@ -53,49 +52,37 @@ class CompilerPipeline:
         if lang == "c":
             clang_path = detect_clang()
             if not clang_path:
-                logger.warning("Clang compiler not found. Generating mock fallback.")
-                self.c.generate_fallback_ir(source_path, output_path)
-            else:
-                success, err = self.c.compile(source_path, output_path, clang_path)
-                if not success:
-                    logger.warning(f"Clang compilation failed: {err}. Generating mock fallback.")
-                    self.c.generate_fallback_ir(source_path, output_path)
+                raise LLVMCompilationError("Clang compiler not found on system.")
+            success, err = self.c.compile(source_path, output_path, clang_path)
+            if not success:
+                raise LLVMCompilationError(f"Clang compilation failed: {err}")
             LLVMValidator.validate_ir_file(output_path)
                 
         elif lang == "cpp":
             clangpp_path = detect_clangpp()
             if not clangpp_path:
-                logger.warning("Clang++ compiler not found. Generating mock fallback.")
-                self.cpp.generate_fallback_ir(source_path, output_path)
-            else:
-                success, err = self.cpp.compile(source_path, output_path, clangpp_path)
-                if not success:
-                    logger.warning(f"Clang++ compilation failed: {err}. Generating mock fallback.")
-                    self.cpp.generate_fallback_ir(source_path, output_path)
+                raise LLVMCompilationError("Clang++ compiler not found on system.")
+            success, err = self.cpp.compile(source_path, output_path, clangpp_path)
+            if not success:
+                raise LLVMCompilationError(f"Clang++ compilation failed: {err}")
             LLVMValidator.validate_ir_file(output_path)
                 
         elif lang == "fortran":
             flang_path = detect_flang()
             if not flang_path:
-                logger.warning("Fortran compiler not found. Generating mock fallback.")
-                self.fortran.generate_fallback_ir(source_path, output_path)
-            else:
-                success, err = self.fortran.compile(source_path, output_path, flang_path)
-                if not success:
-                    logger.warning(f"Fortran compilation failed: {err}. Generating mock fallback.")
-                    self.fortran.generate_fallback_ir(source_path, output_path)
+                raise LLVMCompilationError("Fortran compiler not found on system.")
+            success, err = self.fortran.compile(source_path, output_path, flang_path)
+            if not success:
+                raise LLVMCompilationError(f"Fortran compilation failed: {err}")
             LLVMValidator.validate_ir_file(output_path)
                 
         elif lang == "rust":
             rustc_path = detect_rustc()
             if not rustc_path:
-                logger.warning("Rust compiler not found. Generating mock fallback.")
-                self.rust.generate_fallback_ir(source_path, output_path)
-            else:
-                success, err = self.rust.compile(source_path, output_path, rustc_path)
-                if not success:
-                    logger.warning(f"Rustc compilation failed: {err}. Generating mock fallback.")
-                    self.rust.generate_fallback_ir(source_path, output_path)
+                raise LLVMCompilationError("Rust compiler not found on system.")
+            success, err = self.rust.compile(source_path, output_path, rustc_path)
+            if not success:
+                raise LLVMCompilationError(f"Rustc compilation failed: {err}")
             LLVMValidator.validate_ir_file(output_path)
                 
         return success, err

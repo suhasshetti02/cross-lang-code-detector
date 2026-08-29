@@ -11,6 +11,7 @@ import tempfile
 import shutil
 
 from compiler import CompilerPipeline
+from compiler.compiler_detector import detect_clang
 from ir import IRExtractor, IRParser, IRNormalizer
 from graph import CFGBuilder, DFGBuilder, GraphFingerprint
 from semantic import IntentDetector, NegativeRules, FunctionalFamily
@@ -31,6 +32,7 @@ class TestCompilerPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.detect_language("test.f90"), "fortran")
         self.assertIsNone(self.pipeline.detect_language("test.txt"))
 
+    @unittest.skipIf(not detect_clang(), "Clang compiler not installed")
     def test_c_compilation(self):
         source = self.temp_dir / "factorial.c"
         source.write_text("int factorial(int n) { return n <= 1 ? 1 : n * factorial(n - 1); }")
@@ -124,6 +126,7 @@ class TestSemanticIntentEngine(unittest.TestCase):
         self.assertEqual(FunctionalFamily.calculate_similarity("Factorial", "Sorting"), 0.0)
 
 class TestSimilarityEngine(unittest.TestCase):
+    @unittest.skipIf(not detect_clang(), "Clang compiler not installed")
     def test_engine_smoke(self):
         engine = StrictSemanticSimilarityEngine()
         with tempfile.TemporaryDirectory() as tmp:

@@ -21,3 +21,4 @@ dist-ssr
 *.sln
 *.sw?
 .env
+PROJECT_INTERVIEW_GUIDE.md

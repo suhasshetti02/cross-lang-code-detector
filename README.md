@@ -1,307 +1,130 @@
-# Cross-Language Semantic Code Clone Detector
+# Cross-Language Semantic Code Clone Detector (Proof of Concept)
 
-A sophisticated compiler-based analysis platform that identifies semantically equivalent code implementations across C, C++, Rust, and Fortran using LLVM Intermediate Representation (IR), Control Flow Graphs (CFG), Data Flow Graphs (DFG), and graph-based similarity learning.
+A Python and React-based web application designed to demonstrate semantic code clone detection across multiple languages. This project is a **Proof of Concept (PoC)** that uses a combination of compiler intermediate representation (IR) analysis and graph-based hashing to identify structurally similar code.
 
-## Project Overview
+## 1. Problem
+Identifying code clones across different programming languages (e.g., C, C++, Rust, Fortran) is difficult because the syntax and paradigms differ significantly. Traditional text-based or token-based clone detectors fail when comparing algorithms implemented in completely different languages.
 
-This system provides advanced semantic clone detection capabilities by:
+## 2. Solution
+This system approaches the problem by stripping away language-specific syntax. It leverages LLVM Intermediate Representation (IR) to normalize the code into a universal assembly-like structure. From the IR, it builds Control Flow Graphs (CFG) and Data Flow Graphs (DFG), and uses Weisfeiler-Lehman (WL) hashing to create structural fingerprints of the algorithms. It compares these graph fingerprints alongside keyword-based intent detection to determine similarity.
 
-- Compiling source code from multiple languages to LLVM IR
-- Normalizing IR to remove language-specific and compiler-specific artifacts
-- Extracting Control Flow Graphs and Data Flow Graphs
-- Computing graph embeddings and structural fingerprints
-- Calculating weighted semantic similarity scores
-- Predicting functional intent of compared functions
-- Visualizing results through an interactive dashboard
+> **Note on Implementation:** To ensure cross-platform compatibility and stability during demonstrations without requiring users to install complex LLVM toolchains, this PoC relies on a fallback simulator. It generates mock LLVM IR and applies rule-based scoring overrides for specific test cases (e.g., Fibonacci, Sorting, Factorial) provided in the `testcases/` directory.
 
-## Features
+## 3. Features
+- **Cross-Language Support**: Compares C, C++, Rust, and Fortran code conceptually.
+- **IR Graph Analysis**: Extracts and hashes Control Flow Graphs and Data Flow Graphs using NetworkX.
+- **Structural Hashing**: Utilizes the Weisfeiler-Lehman graph hashing algorithm.
+- **Rule-Based Intent Detection**: Identifies algorithmic intent using keyword and structural pattern matching.
+- **Web Dashboard**: Interactive React frontend for file uploading and score visualization.
 
-- **Cross-Language Support**: Detect clones across C, C++, Rust, and Fortran
-- **LLVM IR Analysis**: Using industry-standard compiler infrastructure
-- **Multi-Metric Similarity**: CFG, DFG, embedding, and token-based analysis
-- **Graph Visualization**: Interactive CFG and DFG visualization
-- **Functional Intent Prediction**: ML-based algorithm classification
-- **Web Dashboard**: Modern React-based visualization interface
-- **CLI Tool**: Powerful command-line interface for batch processing
-- **Detailed Reports**: JSON and CSV export for evaluation
+## 4. Technology Stack
+- **Frontend**: React 19, TailwindCSS, Vite
+- **Backend**: Python 3.8+, FastAPI, Uvicorn
+- **Graph Processing**: NetworkX
+- **Compilation**: Conceptually uses LLVM (simulated for stability)
 
-## Technology Stack
-
-### Backend
-- **Python 3.8+**: Core analysis engine
-- **FastAPI**: RESTful API server
-- **NetworkX**: Graph processing and analysis
-- **NumPy/Scikit-learn**: Numerical computation and ML
-- **LLVM**: Intermediate representation
-
-### Frontend
-- **React 18**: Dashboard UI framework
-- **TypeScript**: Type-safe frontend development
-- **TailwindCSS**: Modern styling framework
-- **Recharts**: Data visualization
-- **Vite**: Fast build tool
-
-### ML/Graph Processing
-- **Weisfeiler-Lehman Hashing**: Graph fingerprinting
-- **Graph2Vec/Node2Vec**: Graph embeddings
-- **Cosine Similarity**: Vector comparison
-
-## System Architecture
-
-Refer to [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/architecture_diagram.svg](docs/architecture_diagram.svg) for detailed pipeline diagrams. For submission compliance, consult [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md).
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Source Code Files                         │
-│           (C, C++, Rust, Fortran)                           │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│               Compilation Pipeline                           │
-│        clang/clang++/rustc/flang → LLVM IR                   │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│               IR Normalization                               │
-│    Remove debug info, normalize vars, canonicalize         │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│            Graph Extraction Engine                          │
-│         CFG (Control Flow) │ DFG (Data Flow)                │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│            Embedding & Fingerprinting                       │
-│      WL Hashing │ Graph2Vec │ Node2Vec                      │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│            Similarity Scoring Engine                         │
-│   30% CFG + 30% DFG + 30% Embedding + 10% Tokens           │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│           Clone Classification Engine                        │
-│   Type-1 │ Type-2 │ Type-3 │ Type-4 (Semantic)              │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│          Functional Intent Predictor                         │
-│  Sorting │ Searching │ Math │ DP │ Strings │ Matrix        │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Output & Visualization                          │
-│    Dashboard │ CLI │ Reports │ Graph DOT Files              │
-└─────────────────────────────────────────────────────────────┘
+## 5. Architecture
+```text
+User 
+ → React Frontend 
+ → FastAPI Backend 
+ → Compiler Pipeline (Mock LLVM IR fallback) 
+ → IR Parser 
+ → CFG/DFG Builder (NetworkX) 
+ → WL Fingerprint Hash 
+ → Similarity Engine (with hardcoded intent rules) 
+ → Response
 ```
 
-## Installation
+## 6. Screenshots
+
+### Workspace Dashboard
+![Workspace Dashboard](screenshots/workspace_dashboard.png)
+
+### Pairwise Comparison
+![Pairwise Comparison Input](screenshots/pairwise_comparison_input.png)
+![Pairwise Comparison Result](screenshots/pairwise_comparison_result.png)
+
+### Batch Analysis
+![Batch Analysis Input](screenshots/batch_analysis_input.png)
+![Batch Analysis Clone Groups](screenshots/batch_analysis_clone_groups.png)
+![Batch Analysis Mismatch](screenshots/batch_analysis_mismatch_results.png)
+
+### Evaluation & History
+![Pipeline Evaluation](screenshots/pipeline_evaluation.png)
+![Comparison History](screenshots/comparison_history.png)
+
+## 7. Demo
+This project is currently designed to run locally. There is no live deployment.
+
+## 8. Installation
 
 ### Prerequisites
+- Python 3.8+
+- Node.js 16+
 
-- Python 3.8 or higher
-- Node.js 16 or higher
-- LLVM/Clang toolchain (optional, for actual compilation)
-- Rust compiler (optional, for Rust support)
-- Flang/GFortran (optional, for Fortran support)
-
-### Quick Start
-
-1. **Clone the repository**
+### Setup
+1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd cross-language-clone-detector
+   cd cross_lang_clone_detector
    ```
-
-2. **Build the project**
+2. **Build the project:**
    ```bash
+   # Linux/macOS
    ./build.sh
-   ```
-   Windows:
-   ```powershell
+   # Windows
    .\build.bat
    ```
 
-3. **Run the system**
+## 9. Environment Variables
+No environment variables are required to run the local system.
+
+## 10. Running Locally
+1. **Start the system:**
    ```bash
+   # Linux/macOS
    ./run.sh
-   ```
-   Windows:
-   ```powershell
+   # Windows
    .\run.bat
    ```
+2. **Access the dashboard:**
+   - Frontend: `http://localhost:5173`
+   - API Docs: `http://localhost:8000/docs`
 
-4. **Access the dashboard**
-   - Dashboard: http://localhost:5173
-   - API Documentation: http://localhost:8000/docs
+## 11. Testing
+Manual testing is supported via the `testcases/` directory. The system contains specific rules and fallback IR logic tailored to correctly parse and score these test files:
+- **Sorting**: QuickSort (C, Rust)
+- **Searching**: Binary Search
+- **Recursion**: Fibonacci (C, Rust)
 
-## Usage
+## 12. Project Structure
+- `backend/`: FastAPI backend setup, routing, and configuration.
+- `frontend/`: React + Vite web dashboard.
+- `src/`: Core Python modules for the analysis engine.
+  - `compiler/`: C and Rust compiler wrappers (contains fallback LLVM IR mock logic).
+  - `graph/`: NetworkX CFG/DFG builders and Weisfeiler-Lehman hashing.
+  - `semantic/`: Keyword-based intent detection.
+  - `similarity/`: Orchestrates the pipeline and calculates final similarity scores.
+- `testcases/`: Source files intended for testing the system.
 
-### CLI Tool
+## 13. API Information
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/similarity` | Compares two uploaded source files. |
+| GET | `/compile/{id}` | Returns the LLVM IR text for a file. |
+| GET | `/graphs/{id}` | Returns CFG/DFG nodes and edges. |
 
-```bash
-# Compare two source files
-./run.sh compare testcases/sorting/quicksort.c testcases/sorting/quicksort.rs
+## 14. Database Information
+This project does not use a database. File processing happens in-memory, and intermediate LLVM IR files are temporarily cached in `outputs/ir/`.
 
-# Compare with JSON output
-./run.sh compare testcases/sorting/quicksort.c testcases/sorting/quicksort.rs --json
+## 15. Limitations
+- **Simulated Compilation**: True dynamic parsing of LLVM IR from arbitrary, unseen code will likely fail. The system falls back to mock IR strings for known test cases.
+- **Simulated Machine Learning**: GraphCodeBERT embeddings and semantic AI are simulated using mathematical string hashing (`_generate_fallback_vector`) rather than actual model inference.
+- **Score Manipulation**: The `similarity_engine.py` applies manual score capping and boosting (e.g., forcing scores > 85% for specific testcases) rather than relying purely on the algorithm.
 
-# Analyze and cluster entire directory
-./run.sh dataset testcases/sorting/
-
-# Visualize control flow graph of a function
-./run.sh visualize testcases/sorting/quicksort.c quick_sort --type cfg
-
-# Run the evaluation benchmark suite
-./run.sh benchmark
-```
-
-### Dashboard
-
-1. **Upload Files**: Navigate to Upload page, drag and drop source files
-2. **View IR**: Use Graphs page to view generated LLVM IR for a selected function
-3. **Analyze**: Start clone detection analysis
-4. **Visualize**: View CFG/DFG graphs for functions
-5. **Compare**: See detailed similarity scores and clone classifications
-
-## Clone Types
-
-| Type | Description | Similarity Threshold |
-|------|-------------|----------------------|
-| Type-1 | Exact code clones (except whitespace) | ≥ 95% |
-| Type-2 | Renamed identifier clones | ≥ 85% |
-| Type-3 | Near-miss clones (modified statements) | ≥ 70% |
-| Type-4 | Semantic clones (different syntax, same behavior) | ≥ 60% |
-
-## Example Usage
-
-```bash
-# Cross-language comparison
-./clone-detector compare testcases/sorting/quicksort.c testcases/sorting/quicksort.rs
-
-# Output:
-Function A: quicksort.c::quick_sort
-Function B: quicksort.rs::quick_sort
-
-Semantic Similarity: 91.4%
-  CFG Similarity:        88%
-  DFG Similarity:        93%
-  Embedding Similarity:  95%
-  IR Token Similarity:   89%
-
-Predicted Functional Category: Sorting Algorithm
-
-Clone Type: Type-4 Semantic Clone
-
-Reason: Equivalent recursive partitioning and similar comparison/data-flow structure detected.
-```
-
-## Test Cases
-
-The project includes comprehensive test cases:
-
-- **Sorting**: QuickSort (C, C++, Rust)
-- **Searching**: Binary Search (C, Rust)
-- **Matrix**: Matrix Multiplication (C, C++)
-- **Recursion**: Fibonacci (Recursive vs Iterative) (C, Rust)
-- **Strings**: String Matching (C)
-
-Navigate to `testcases/` directory for examples.
-
-## Project Structure
-
-```
-project/
-├── src/                  # Core source modules
-│   ├── cli/             # CLI command interface (main.py)
-│   ├── compiler/        # Adapters for C, C++, Fortran, and Rust compilation
-│   ├── ir/              # Intermediate Representation (IR) extractor, parser, normalizer
-│   ├── graph/           # CFG and DFG extraction builders and WL Hashing
-│   ├── semantic/        # Program taxonomy intent classifier, equivalence rules, embedding fallback
-│   ├── similarity/      # Multi-metric similarity weighting engine, clustering, decision boundaries
-│   └── evaluation/      # Accuracy metrics, precision, recall, benchmark runner
-├── testcases/           # Test source files (C, C++, Rust, Fortran)
-│   ├── sorting/
-│   ├── searching/
-│   ├── matrix/
-│   ├── recursion/
-│   ├── strings/
-│   └── benchmark/       # Source files used by the evaluation suite
-├── outputs/             # Generated outputs (CFG/DFG dot files, reports)
-├── screenshots/         # Mockups and execution snapshots
-├── build.sh             # Build and verification setup script
-├── run.sh               # Execution runner script
-├── run.bat              # Windows runner script
-├── clone-detector.bat   # Windows execution batch wrapper
-├── README.md            # This file
-├── DESIGN.md            # System design details
-├── IMPLEMENTATION.md    # LLVM pipeline details
-└── EVALUATION.md        # Evaluation metrics and comparison
-```
-
-## API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/upload` | POST | Upload source file |
-| `/compile/{file_id}` | GET | Compile to LLVM IR |
-| `/graphs/{file_id}/{function}` | GET | Get CFG/DFG |
-| `/similarity` | POST | Compute similarity |
-| `/analyze` | POST | Batch analysis |
-| `/dashboard/stats` | GET | Dashboard statistics |
-| `/files` | GET | List uploaded files |
-
-Full API documentation: http://localhost:8000/docs
-
-## Known Limitations
-
-1. **Compiler Dependency**: Requires LLVM toolchain for actual IR generation
-2. **Fortran Support**: Limited by Flang availability
-3. **Complex Templates**: C++ template metaprogramming may not normalize well
-4. **Large Codebases**: Performance may degrade with very large functions
-5. **Dynamic Features**: Cannot analyze runtime behavior, only static structure
-
-## Future Enhancements
-
-- Machine learning-based semantic analysis
-- Support for additional languages (Go, Swift, Java)
-- Incremental analysis for large projects
-- Integration with CI/CD pipelines
-- Extended functional category prediction
-
-## Research Publication
-
-This system demonstrates advanced techniques in:
-- Cross-language program analysis
-- Compiler intermediate representation
-- Graph-based code similarity
-- Semantic clone detection
-
-## License
-
-MIT License
-
-## Contributing
-
-Contributions are welcome! Please read CONTRIBUTING.md for details.
-
-## Acknowledgments
-
-- LLVM Project for compiler infrastructure
-- NetworkX for graph algorithms
-- FastAPI for the excellent web framework
-- React and TailwindCSS for the frontend
-
-## Contact
-
-For questions and support, please open an issue on GitHub.
+## 16. Future Improvements
+- Integrate actual PyTorch model inference for GraphCodeBERT to provide true semantic embeddings.
+- Implement robust parsing for arbitrary LLVM IR generated by local toolchains.
+- Remove hardcoded similarity score boosters to allow the WL-hash and semantic matching algorithms to evaluate accurately.
+- Add an automated test suite (e.g., `pytest`).
