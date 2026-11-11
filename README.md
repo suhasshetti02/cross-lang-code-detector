@@ -1,130 +1,120 @@
-# Cross-Language Semantic Code Clone Detector (Proof of Concept)
+# Cross-Language Semantic Code Clone Detector
 
-A Python and React-based web application designed to demonstrate semantic code clone detection across multiple languages. This project is a **Proof of Concept (PoC)** that uses a combination of compiler intermediate representation (IR) analysis and graph-based hashing to identify structurally similar code.
+A Python / React application that compares source files across C, C++, Rust, and Fortran using compiler-generated LLVM IR, program-structure representations, control-flow / data-flow graphs, graph fingerprints, and heuristic similarity features.
 
-## 1. Problem
-Identifying code clones across different programming languages (e.g., C, C++, Rust, Fortran) is difficult because the syntax and paradigms differ significantly. Traditional text-based or token-based clone detectors fail when comparing algorithms implemented in completely different languages.
+> **Project status:** Proof of concept / research prototype. A compiler-backed path exists, but similarity scores still combine handcrafted structural and token-based features. They should not be presented as a validated measure of semantic equivalence for arbitrary programs.
 
-## 2. Solution
-This system approaches the problem by stripping away language-specific syntax. It leverages LLVM Intermediate Representation (IR) to normalize the code into a universal assembly-like structure. From the IR, it builds Control Flow Graphs (CFG) and Data Flow Graphs (DFG), and uses Weisfeiler-Lehman (WL) hashing to create structural fingerprints of the algorithms. It compares these graph fingerprints alongside keyword-based intent detection to determine similarity.
+## What is implemented
 
-> **Note on Implementation:** To ensure cross-platform compatibility and stability during demonstrations without requiring users to install complex LLVM toolchains, this PoC relies on a fallback simulator. It generates mock LLVM IR and applies rule-based scoring overrides for specific test cases (e.g., Fibonacci, Sorting, Factorial) provided in the `testcases/` directory.
+- Language detection for C, C++, Rust, and Fortran source files.
+- Compiler discovery for Clang, Clang++, Flang, and Rustc, followed by real compilation to LLVM IR when the relevant toolchain is installed.
+- LLVM IR parsing / normalisation and control-flow / data-flow graph construction.
+- Weisfeiler–Lehman graph fingerprinting and serialised graph views.
+- Structural Program Representation (SPR) and feature extraction for intent, entities, behaviour patterns, and operation pipelines.
+- Pairwise and multi-file comparison, graph visualisation, comparison history, and evaluation pages.
+- FastAPI endpoints for comparison, analysis, status, test cases, evaluation, and visualisation.
+- A React / TypeScript / Vite interface.
+- Optional model encoders with deterministic local fallback behaviour when a model cannot be loaded; the main similarity engine also contains its own handcrafted vectorisation logic.
 
-## 3. Features
-- **Cross-Language Support**: Compares C, C++, Rust, and Fortran code conceptually.
-- **IR Graph Analysis**: Extracts and hashes Control Flow Graphs and Data Flow Graphs using NetworkX.
-- **Structural Hashing**: Utilizes the Weisfeiler-Lehman graph hashing algorithm.
-- **Rule-Based Intent Detection**: Identifies algorithmic intent using keyword and structural pattern matching.
-- **Web Dashboard**: Interactive React frontend for file uploading and score visualization.
+## Technology stack
 
-## 4. Technology Stack
-- **Frontend**: React 19, TailwindCSS, Vite
-- **Backend**: Python 3.8+, FastAPI, Uvicorn
-- **Graph Processing**: NetworkX
-- **Compilation**: Conceptually uses LLVM (simulated for stability)
+| Layer | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Vite, Tailwind CSS |
+| API | Python, FastAPI, Uvicorn, Pydantic |
+| Compilation | Clang, Clang++, Flang, Rustc |
+| IR / graph analysis | LLVM IR, NetworkX, CFG / DFG, Weisfeiler–Lehman hashing |
+| Similarity | SPR features, structural scores, token-based vectorisation, heuristic rules |
+| Optional encoders | Hugging Face Transformers model adapters |
 
-## 5. Architecture
+## Architecture
+
 ```text
-User 
- → React Frontend 
- → FastAPI Backend 
- → Compiler Pipeline (Mock LLVM IR fallback) 
- → IR Parser 
- → CFG/DFG Builder (NetworkX) 
- → WL Fingerprint Hash 
- → Similarity Engine (with hardcoded intent rules) 
- → Response
+React / Vite client
+  │
+  ▼
+FastAPI API
+  │
+  ▼
+Compiler pipeline
+  ├── Clang / Clang++ / Flang / Rustc
+  └── LLVM IR validation
+       │
+       ▼
+IR parsing and normalisation
+       │
+       ├── CFG / DFG construction
+       ├── graph fingerprints
+       └── SPR feature extraction
+                │
+                ▼
+       staged similarity / classification
+                │
+                ▼
+       comparison report + graph data
 ```
 
-## 6. Screenshots
+## Repository map
 
-### Workspace Dashboard
-![Workspace Dashboard](screenshots/workspace_dashboard.png)
+- `backend/` — FastAPI API routes, configuration, comparison pipeline, and report storage.
+- `src/compiler/` — compiler discovery, wrappers, and LLVM IR validation.
+- `src/ir/` — IR parsing and normalisation.
+- `src/graph/` — CFG / DFG building and graph fingerprints.
+- `src/semantic/` — behaviour, purpose, entity, and transformation features.
+- `src/evaluation/` — benchmark runner, metrics, and baseline comparisons.
+- `frontend/` — current React / Vite web dashboard.
+- `src/frontend/` — a second frontend tree with overlapping / older UI files; compare before changing both.
+- `testcases/`, `evaluation/` — sample source pairs and evaluation data.
+- `scripts/` — compiler toolchain checks and setup helpers.
 
-### Pairwise Comparison
-![Pairwise Comparison Input](screenshots/pairwise_comparison_input.png)
-![Pairwise Comparison Result](screenshots/pairwise_comparison_result.png)
+## Run locally
 
-### Batch Analysis
-![Batch Analysis Input](screenshots/batch_analysis_input.png)
-![Batch Analysis Clone Groups](screenshots/batch_analysis_clone_groups.png)
-![Batch Analysis Mismatch](screenshots/batch_analysis_mismatch_results.png)
+Requirements: Python 3.10+, Node.js 18+, npm, and the matching language compiler toolchains. For the full cross-language path, install and make available in PATH:
 
-### Evaluation & History
-![Pipeline Evaluation](screenshots/pipeline_evaluation.png)
-![Comparison History](screenshots/comparison_history.png)
+- Clang and Clang++ (LLVM).
+- Flang for Fortran.
+- Rustc for Rust.
 
-## 7. Demo
-This project is currently designed to run locally. There is no live deployment.
+Install backend dependencies from the repository root:
 
-## 8. Installation
+```bash
+python -m venv .venv
+# Activate the environment
+pip install -r requirements.txt
+```
 
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
+Start the API:
 
-### Setup
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd cross_lang_clone_detector
-   ```
-2. **Build the project:**
-   ```bash
-   # Linux/macOS
-   ./build.sh
-   # Windows
-   .\build.bat
-   ```
+```bash
+uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
+```
 
-## 9. Environment Variables
-No environment variables are required to run the local system.
+Start the frontend:
 
-## 10. Running Locally
-1. **Start the system:**
-   ```bash
-   # Linux/macOS
-   ./run.sh
-   # Windows
-   .\run.bat
-   ```
-2. **Access the dashboard:**
-   - Frontend: `http://localhost:5173`
-   - API Docs: `http://localhost:8000/docs`
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## 11. Testing
-Manual testing is supported via the `testcases/` directory. The system contains specific rules and fallback IR logic tailored to correctly parse and score these test files:
-- **Sorting**: QuickSort (C, Rust)
-- **Searching**: Binary Search
-- **Recursion**: Fibonacci (C, Rust)
+The frontend is normally served on port `5173`; the API documentation is available at `http://127.0.0.1:8000/docs`.
 
-## 12. Project Structure
-- `backend/`: FastAPI backend setup, routing, and configuration.
-- `frontend/`: React + Vite web dashboard.
-- `src/`: Core Python modules for the analysis engine.
-  - `compiler/`: C and Rust compiler wrappers (contains fallback LLVM IR mock logic).
-  - `graph/`: NetworkX CFG/DFG builders and Weisfeiler-Lehman hashing.
-  - `semantic/`: Keyword-based intent detection.
-  - `similarity/`: Orchestrates the pipeline and calculates final similarity scores.
-- `testcases/`: Source files intended for testing the system.
+Windows users can inspect `build.bat` and `run.bat`; Linux/macOS users can inspect `build.sh` and `run.sh`. Confirm the scripts against the current directory layout before use.
 
-## 13. API Information
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| POST | `/similarity` | Compares two uploaded source files. |
-| GET | `/compile/{id}` | Returns the LLVM IR text for a file. |
-| GET | `/graphs/{id}` | Returns CFG/DFG nodes and edges. |
+## Evaluation
 
-## 14. Database Information
-This project does not use a database. File processing happens in-memory, and intermediate LLVM IR files are temporarily cached in `outputs/ir/`.
+The repository includes benchmark and evaluation utilities under `src/evaluation/`, evaluation cases under `evaluation/`, and generated result files. Treat any existing accuracy / score values as results from the included test set only. Re-run the suite on unseen programs and compare against token / text / AST baselines before making general performance claims.
 
-## 15. Limitations
-- **Simulated Compilation**: True dynamic parsing of LLVM IR from arbitrary, unseen code will likely fail. The system falls back to mock IR strings for known test cases.
-- **Simulated Machine Learning**: GraphCodeBERT embeddings and semantic AI are simulated using mathematical string hashing (`_generate_fallback_vector`) rather than actual model inference.
-- **Score Manipulation**: The `similarity_engine.py` applies manual score capping and boosting (e.g., forcing scores > 85% for specific testcases) rather than relying purely on the algorithm.
+## Limitations
 
-## 16. Future Improvements
-- Integrate actual PyTorch model inference for GraphCodeBERT to provide true semantic embeddings.
-- Implement robust parsing for arbitrary LLVM IR generated by local toolchains.
-- Remove hardcoded similarity score boosters to allow the WL-hash and semantic matching algorithms to evaluate accurately.
-- Add an automated test suite (e.g., `pytest`).
+- Real LLVM IR generation depends on installed native toolchains. Compiler detection and compilation failures should be treated as failures, not silently interpreted as correct semantic analysis.
+- The repository also contains fallback / synthetic code paths and model-vector fallbacks. Verify which path was used when interpreting an individual comparison.
+- The current main similarity engine includes handcrafted token-vector and weighted feature logic; it is not equivalent to a fully trained semantic model.
+- Graph similarity and inferred intent do not prove that two programs are functionally equivalent.
+- Sample-specific score adjustments / heuristics should be disclosed when presenting results.
+- The repository contains duplicated frontend trees and generated / local artifacts (including a committed virtual environment). Keep generated environments, model caches, and build outputs out of future commits.
+- The available tests and evaluation data do not replace a broad, independently labelled benchmark.
+
+## License
+
+See repository license and the licences for compiler, model, and frontend dependencies.
