@@ -1,3 +1,9 @@
+<div align="center">
+  <img src="https://raw.githubusercontent.com/suhasshetti02/suhasshetti02/main/assets/projects/code-clone-detector.svg" width="100%" alt="code-clone-detector project banner"/>
+</div>
+
+---
+
 # Cross-Language Semantic Code Clone Detector (Proof of Concept)
 
 A Python and React-based web application designed to demonstrate semantic code clone detection across multiple languages. This project is a **Proof of Concept (PoC)** that uses a combination of compiler intermediate representation (IR) analysis and graph-based hashing to identify structurally similar code.
