@@ -44,21 +44,32 @@ User
 
 ## 6. Screenshots
 
-### Workspace Dashboard
-![Workspace Dashboard](screenshots/workspace_dashboard.png)
+### Workspace & Pairwise Analysis
 
-### Pairwise Comparison
-![Pairwise Comparison Input](screenshots/pairwise_comparison_input.png)
-![Pairwise Comparison Result](screenshots/pairwise_comparison_result.png)
+<p align="center">
+  <img src="screenshots/workspace_dashboard.png" width="49%" alt="Code clone detector workspace dashboard"/>
+  <img src="screenshots/pairwise_comparison_input.png" width="49%" alt="Pairwise source comparison input"/>
+</p>
+<p align="center">
+  <img src="screenshots/pairwise_comparison_result.png" width="80%" alt="Pairwise comparison result"/>
+</p>
 
 ### Batch Analysis
-![Batch Analysis Input](screenshots/batch_analysis_input.png)
-![Batch Analysis Clone Groups](screenshots/batch_analysis_clone_groups.png)
-![Batch Analysis Mismatch](screenshots/batch_analysis_mismatch_results.png)
+
+<p align="center">
+  <img src="screenshots/batch_analysis_input.png" width="49%" alt="Batch analysis input"/>
+  <img src="screenshots/batch_analysis_clone_groups.png" width="49%" alt="Detected clone groups"/>
+</p>
+<p align="center">
+  <img src="screenshots/batch_analysis_mismatch_results.png" width="80%" alt="Batch analysis mismatch results"/>
+</p>
 
 ### Evaluation & History
-![Pipeline Evaluation](screenshots/pipeline_evaluation.png)
-![Comparison History](screenshots/comparison_history.png)
+
+<p align="center">
+  <img src="screenshots/pipeline_evaluation.png" width="49%" alt="Pipeline evaluation view"/>
+  <img src="screenshots/comparison_history.png" width="49%" alt="Comparison history view"/>
+</p>
 
 ## 7. Demo
 This project is currently designed to run locally. There is no live deployment.
